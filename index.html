@@ -253,6 +253,7 @@
             object-fit: cover;
             border-radius: 4px;
             background-color: var(--bg-dark);
+            cursor: zoom-in; /* Zeigt an, dass man klicken kann */
         }
 
         .task-note {
@@ -282,6 +283,39 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Bild-Vollbild Modal (Lightbox) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: var(--text-main);
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 101;
         }
     </style>
 </head>
@@ -329,6 +363,11 @@
 
     </div>
 
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage" alt="Vollbild">
+    </div>
+
     <script>
         // Globale Variablen für den Bearbeitungsmodus
         let currentEditId = null;
@@ -358,7 +397,17 @@
             console.error("Datenbank Fehler:", event.target.error);
         };
 
-        // Bildvorschau
+        // Modal (Vollbild) öffnen und schließen
+        function openModal(imageSrc) {
+            document.getElementById('modalImage').src = imageSrc;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Bildvorschau in der Eingabemaske
         function handleImage(input, previewId, boxId, textId) {
             const file = input.files[0];
             if (file) {
@@ -580,8 +629,8 @@
                     card.className = `task-card ${isEditing ? 'editing' : ''}`;
                     card.innerHTML = `
                         <div class="task-images">
-                            <img src="${task.labelImg}" alt="Label">
-                            <img src="${task.articleImg}" alt="Artikel">
+                            <img src="${task.labelImg}" alt="Label" onclick="openModal('${task.labelImg}')" title="Klicken zum Vergrößern">
+                            <img src="${task.articleImg}" alt="Artikel" onclick="openModal('${task.articleImg}')" title="Klicken zum Vergrößern">
                         </div>
                         ${task.note ? `<div class="task-note">${task.note}</div>` : ''}
                         <div class="task-time">Erfasst um ${timeStr}</div>
